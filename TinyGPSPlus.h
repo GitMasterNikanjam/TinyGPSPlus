@@ -26,19 +26,28 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 // ##############################################################
-#ifndef TinyGPSPlus_h
-#define TinyGPSPlus_h
+
+#pragma once
 
 // ##############################################################
 // Include libraries:
 
-#include <string.h>
-#include <ctype.h>
-#include <stdlib.h>
 #include <cstdint>
-#include <math.h>
-#include <ctime>
-#include <limits.h>
+
+#if defined(__linux__)
+   #include <string.h>
+   #include <ctype.h>
+   #include <stdlib.h>
+   #include <math.h>
+   #include <ctime>
+   #include <limits>
+#else
+   #include <cstring>
+   #include <cctype>
+   #include <cstdlib>
+   #include <cmath>
+   #include <climits>    // C++
+#endif
 
 // ################################################################
 // Define parameters:
@@ -55,8 +64,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // ##############################################################
 // Function declerations:
 
-// Retun time from start point of program. [ms]
-unsigned long int gps_millis(void);  
+#if defined(__linux__)
+   // Retun time from start point of program. [ms]
+   unsigned long int gps_millis(void);  
+#else
+   // callback injection (recommended)
+   typedef uint32_t (*gps_millis_cb_t)(void);
+   void gps_set_millis_callback(gps_millis_cb_t cb);
+   uint32_t gps_millis(void);
+#endif
 
 // ##############################################################
 // Structure declerations:
@@ -299,4 +315,5 @@ private:
   bool endOfTermHandler();
 };
 
-#endif // ifndef(TinyGPSPlus_h)
+// #############################################################################
+

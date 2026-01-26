@@ -17,13 +17,34 @@
 // #################################################################
 // Define independent functions:
 
-// Retun time from start point of program. [ms]
-unsigned long int gps_millis(void)
-{
-    clock_t currentTime = clock();
-    unsigned long int elapsedTime = (currentTime) * 1000.0 / CLOCKS_PER_SEC;
-    return elapsedTime;
-}
+#if defined(__linux__)
+
+  // Retun time from start point of program. [ms]
+  unsigned long int gps_millis(void)
+  {
+      clock_t currentTime = clock();
+      unsigned long int elapsedTime = (currentTime) * 1000.0 / CLOCKS_PER_SEC;
+      return elapsedTime;
+  }
+
+#else
+  static gps_millis_cb_t s_millis_cb = nullptr;
+
+  void gps_set_millis_callback(gps_millis_cb_t cb)
+  {
+    s_millis_cb = cb;
+  }
+
+  uint32_t gps_millis(void)
+  {
+    if (s_millis_cb)
+    {
+      return s_millis_cb();
+    }
+
+    return 0;
+  }
+#endif
 
 // ##################################################################
 // TinyGPSPlus class functions:
